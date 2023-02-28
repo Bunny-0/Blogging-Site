@@ -65,6 +65,26 @@ class User{
         })
 
     }
+
+    static loginUser({loginId,password}){
+
+        return new Promise(async(resolve,reject)=>{
+            let dbUser=await UserSchema.findOne({$or:[{email:loginId},{username:loginId}]});
+
+            if(!dbUser){
+                return reject('no user is found');
+            }
+
+            const isMatch=bcrypt.compare(password,dbUser.password);
+            if(!isMatch){
+                return reject('Invalid password');
+            }
+
+            resolve(dbUser);
+            
+        })
+    }
+    
      
 }
 module.exports=User;

@@ -6,7 +6,47 @@ const User=require('../Models/User');
 
 const authRouter=express.Router();
 
-authRouter.post('/login',(req,res)=>{
+authRouter.post('/login',async(req,res)=>{
+
+    const {loginId,password}=req.body;
+    if(!loginId|| !password){
+        return res.send({
+            status:500,
+            message:"parameter missing"
+        })
+    }
+
+    try{
+        const dbUser= await User.loginUser({loginId,password});
+        req.session.isAuth=true;
+        req.session.user={
+            email:dbUser.email,
+            username:dbUser.username,
+            name:dbUser.name
+        }
+        return res.send({
+            status:200,
+            message:"logged in successfully",
+            data:{
+                email:dbUser.email,
+                username:dbUser.username,
+                name:dbUser.name,
+                _id:dbUser._id
+            }
+        })
+    }
+    catch(err){
+
+        return res.send({
+            status:404,
+            message:"Database error while checking loginUser",
+            error:err
+        })
+        
+
+    }
+
+
 
 })
 authRouter.post('/register',async(req,res)=>{

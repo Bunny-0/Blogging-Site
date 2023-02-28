@@ -9,6 +9,10 @@ function cleanUpAndValidate({name,username,email,phone,password}){
         if(!validator.isEmail(email)){
             return reject('Invalid email');
         }
+        
+        if(validator.isEmail(username)){
+            return reject('username should not be an email');
+        }
 
         if (phone && phone.length!==10){
             return reject('Invalid phone number');
