@@ -57,7 +57,12 @@ class User{
             try{
                 const dbUser=await user.save();
 
-                return resolve(dbUser);
+                return resolve({
+                    username:dbUser.username,
+                    name:dbUser.name,
+                    email:dbUser.email,
+                    _id:dbUser._id
+            });
             }
             catch(err){
                 return reject(err);
@@ -80,7 +85,13 @@ class User{
                 return reject('Invalid password');
             }
 
-            resolve(dbUser);
+            resolve({
+                username:dbUser.username,
+                name:dbUser.name,
+                email:dbUser.email,
+                _id:dbUser._id
+                
+            });
             
         })
     }

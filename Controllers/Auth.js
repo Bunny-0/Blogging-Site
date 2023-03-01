@@ -22,7 +22,8 @@ authRouter.post('/login',async(req,res)=>{
         req.session.user={
             email:dbUser.email,
             username:dbUser.username,
-            name:dbUser.name
+            name:dbUser.name,
+            userId:dbUser._id
         }
         return res.send({
             status:200,
@@ -32,8 +33,7 @@ authRouter.post('/login',async(req,res)=>{
                 username:dbUser.username,
                 name:dbUser.name,
                 _id:dbUser._id
-            }
-        })
+            }})
     }
     catch(err){
 
@@ -100,6 +100,24 @@ authRouter.post('/register',async(req,res)=>{
   
     
     
+})
+authRouter.post('/logout',(req,res)=>{
+
+    const userData=req.session.user;
+    req.session.destroy(err=>{
+        if(err){
+            return res.send({
+                status:404,
+                 message:"logout unsuccessfull,try again",
+                error:err
+            })
+        }
+        return res.send({
+            status:200,
+            message:"logged out successfully",
+            data:userData
+        })
+    })
 })
 
 module.exports=authRouter;

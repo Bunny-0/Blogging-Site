@@ -8,6 +8,7 @@ const constants=require('./private_constants');
 
 //controllers
 const AuthRouter=require('./Controllers/Auth');
+const TweetsRouter=require('./Controllers/Tweets');
 const app=express();
 
 const store=new MongoDbSession({
@@ -28,6 +29,7 @@ app.use(session({
 
 //controllers
 app.use('/auth',AuthRouter);
+app.use('/tweets',TweetsRouter);
 
 app.get('/',(req,res)=>{
     res.send({
