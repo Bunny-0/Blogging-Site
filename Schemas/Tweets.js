@@ -1,7 +1,7 @@
 const mongoose=require('mongoose');
 const Schema=mongoose.Schema;
 
-const TweetSchema=new Schema({
+const TweetsSchema=new Schema({
 
     title:{
         type:String,
@@ -23,4 +23,4 @@ const TweetSchema=new Schema({
 
 
 },{strict:false})
-module.exports=mongoose.model('tb_tweets',TweetSchema,'tb_tweets');
+module.exports=mongoose.model('tb_tweets',TweetsSchema,'tb_tweets');

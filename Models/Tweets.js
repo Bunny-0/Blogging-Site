@@ -1,16 +1,18 @@
-const TweetsSchema=require('../schemas/Tweets');
+const TweetsSchema=require('../Schemas/Tweets');
+const constants=require('../constants');
+
 
 class Tweets{
 
     title;
     bodyText;
     userId;
-    creationDatetime;
+    creationDateTime;
 
-    constructor({title,bodyText,userId,creationDatetime})
+    constructor({title,bodyText,userId,creationDateTime})
     {
-        this.bodyText=bodytext;
-        this.creationDatetime=creationDatetime;
+        this.bodyText=bodyText;
+        this.creationDateTime=creationDateTime;
         this.userId=userId;
         this.title=title;
     }
@@ -25,11 +27,13 @@ class Tweets{
                 title:this.title,
                 bodyText:this.bodyText,
                 userId:this.userId,
-                creationDateTime:this.creationDatetime
+                creationDateTime:this.creationDateTime
             })
 
             try{
+                
             const dbTweet=await tweet.save();
+            
             return resolve(dbTweet);
             }
             catch(err){
@@ -39,5 +43,39 @@ class Tweets{
 
         })
     }
+
+    static getTweets(offset){
+
+        return new Promise(async (resolve,reject)=>{
+
+            try{
+
+                const dbTweets=await TweetsSchema.aggregate([
+                   //sort ,pagination  
+                   {$sort:{"creationDateTime":-1}},
+                   {$facet:{
+                    data:[
+                        {"$skip":parseInt(offset)}
+                        ,{"$limit":constants.TWEETSLIMIT}
+                    ]
+                }}
+                ])
+
+        
+
+                console.log(dbTweets);
+                resolve(dbTweets[0].data);
+ 
+                
+
+            }
+            catch(err){
+                return reject(err);
+            }
+
+        })
+
+        
+    }
 }
-module=Tweets;
+module.exports=Tweets;

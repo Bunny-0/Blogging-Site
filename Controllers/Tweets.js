@@ -6,7 +6,7 @@ const Tweets=require('../Models/Tweets');
 tweetsRouter.post('/create-tweet',async (req,res)=>{
 
     const{title,bodyText}=req.body;
-    const {userId}=req.session.user;
+    const {userId}=req.body;//req.session.user;
 
     if(!title || !bodyText)
     {
@@ -38,9 +38,9 @@ tweetsRouter.post('/create-tweet',async (req,res)=>{
         })
     }
 
-    const creationDateTime=new Date();
+     const creationDateTime= new Date();
 
-    const Tweet=new Tweet({title,bodyText,creationDateTime,userId});
+    const Tweet=new Tweets({title,bodyText,creationDateTime,userId});
 
     try{
 
@@ -55,9 +55,38 @@ tweetsRouter.post('/create-tweet',async (req,res)=>{
     catch(err){
         return res.send({
             status:404,
+            errp:err
+            
 
         })
     }
+})
+
+tweetsRouter.get('/get-tweets',async (req,res)=>{
+
+    const offset=req.query.offset ||0;
+
+    try{
+    const dbTweets=await Tweets.getTweets(offset);
+
+    res.send({
+        status:200,
+        message:"read successfull ",
+        data:dbTweets
+    })
+}
+catch(err) {
+    return res.send({
+        status:400,
+        message:"Internal error in get tweets api",
+        error:err
+    })
+}
+    
+
+
+
+    
 })
 
 module.exports=tweetsRouter;
