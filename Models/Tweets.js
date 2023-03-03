@@ -8,13 +8,15 @@ class Tweets{
     bodyText;
     userId;
     creationDateTime;
+    tweetId;
 
-    constructor({title,bodyText,userId,creationDateTime})
+    constructor({title,bodyText,userId,creationDateTime,tweetId})
     {
         this.bodyText=bodyText;
         this.creationDateTime=creationDateTime;
         this.userId=userId;
         this.title=title;
+        this.tweetId=tweetId;
     }
 
     createTweet(){
@@ -44,6 +46,40 @@ class Tweets{
         })
     }
 
+    editTweet(){
+        return new Promise(async(resolve,reject)=>{
+            let newTweetData={};
+            if(this.title){
+                newTweetData.title=this.title;
+            }
+            if(this.bodyText){
+                newTweetData.bodyText=this.bodyText;
+            }
+
+            try{
+                const oldTweetData=await TweetsSchema.findOneAndUpdate({_id:this.tweetId},newTweetData);
+                resolve(oldTweetData);
+            }
+            catch(err){
+                return reject(err);
+            }
+        })
+    }
+
+    getTweetDatafromTweetId(){
+        return new Promise(async(resolve,reject)=>{
+
+            try{
+                const tweetData=TweetsSchema.findOne({_id:this.tweetId});
+                resolve(tweetData);
+
+            }
+            catch(err){
+                reject(err);
+            }
+        })
+    }
+
     static getTweets(offset){
 
         return new Promise(async (resolve,reject)=>{
@@ -64,6 +100,38 @@ class Tweets{
         
 
                 console.log(dbTweets);
+                resolve(dbTweets[0].data);
+ 
+                
+
+            }
+            catch(err){
+                return reject(err);
+            }
+
+        })
+
+        
+    }
+
+    static getMyTweets(offset,userId){
+
+        return new Promise(async (resolve,reject)=>{
+
+            try{
+
+                const dbTweets=await TweetsSchema.aggregate([
+                   //sort ,pagination  ,check userid
+                   {$match:{userId:userId}},
+                   {$sort:{"creationDateTime":-1}},
+                   {$facet:{
+                    data:[
+                        {"$skip":parseInt(offset)}
+                        ,{"$limit":constants.TWEETSLIMIT}
+                    ]
+                }}
+                ])
+
                 resolve(dbTweets[0].data);
  
                 
