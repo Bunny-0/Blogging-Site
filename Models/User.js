@@ -42,6 +42,20 @@ class User{
 
     }
 
+    static verifyUserIdExists(UserId){
+        return new Promise(async(resolve,reject)=>{
+            try{
+            const userDb= await UserSchema.findOne({_id:UserId});
+            resolve(userDb);
+            }
+            catch(err){
+                reject(err);
+            }
+        })
+
+        
+    }
+
      registerUser(){
         return new Promise(async (resolve,reject)=>{
             const hashPassword=await bcrypt.hash(this.password,15);
