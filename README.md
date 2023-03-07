@@ -3,10 +3,6 @@
 Backend System
 Stack: Node, Express, MongoDB
 
-Don’t:
-Do not send response in HTML/XML 
-Do not send string responses
-No db calls in the controllers
 
 Do’s:
 API’s should send JSON response (status, message, data)
