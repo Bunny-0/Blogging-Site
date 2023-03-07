@@ -66,11 +66,28 @@ class Tweets{
         })
     }
 
+    deleteTweet(){
+        return new Promise(async(resolve,reject)=>{
+
+            try{
+
+                const tweetData=await TweetsSchema.findOneAndDelete({_id:this.tweetId});
+                resolve(tweetData);
+
+            }
+            catch(err){
+                reject(err);
+
+            }
+
+        })
+    }
+
     getTweetDatafromTweetId(){
         return new Promise(async(resolve,reject)=>{
 
             try{
-                const tweetData=TweetsSchema.findOne({_id:this.tweetId});
+                const tweetData=await TweetsSchema.findOne({_id:this.tweetId});
                 resolve(tweetData);
 
             }

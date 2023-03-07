@@ -49,5 +49,17 @@ function cleanUpAndValidate({name,username,email,phone,password}){
     })
 
 }
+const isAuth=(req,res,next)=>{
+    if(req.session.isAuth){
+        next();
+    }
+    else{
+        return res.send({
+            status:404,
+            message:"Invalid User Session .please login again"
+        })
+    }
+}
 
-module.exports={cleanUpAndValidate};
+
+module.exports={cleanUpAndValidate,isAuth};
