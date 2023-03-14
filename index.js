@@ -5,11 +5,11 @@ const MongoDbSession=require('connect-mongodb-session')(session);
 //Files imports
 const constants=require('./private_constants');
 
-
 //controllers
 const AuthRouter=require('./Controllers/Auth');
 const TweetsRouter=require('./Controllers/Tweets');
-const FollowRoute=require('./Controllers/Follow');
+const FollowRouter=require('./Controllers/Follow');
+
 
 const app=express();
 
@@ -32,7 +32,7 @@ app.use(session({
 //controllers
 app.use('/auth',AuthRouter);
 app.use('/tweets',TweetsRouter);
-app.use('/follow',FollowRoute);
+app.use('/follow',FollowRouter);
 app.get('/',(req,res)=>{
     res.send({
         status:200,

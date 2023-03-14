@@ -1,16 +1,16 @@
 const express=require('express');
-const FollowRoute=express.Router();
+const FollowRouter=express.Router();
 
 const { validateMongoDbUserID }=require('../Utils/Follow');
-// const UserSchema=require('../Schemas/User');
-// const FollowSchema=require('../Schemas/Follow');
 const User=require('../Models/User');
-const {followUser}=require('../Models/Follow');
+const {followUser,followingUserList,followerUserList,unfollowUser}=require('../Models/Follow');
 
-FollowRoute.post('/follow-user',async (req,res)=>{
 
-    const followerUserId=req.session.user.userId;
-    const followingUserId=req.body.followingUserId;
+
+FollowRouter.post('/follow-user',async (req,res)=>{
+
+    const followerUserId=req.body.followerUserId;//req.session.user.userId;
+    const followingUserId=req.body.userId;
 
     //check IDs are valid
     if(!validateMongoDbUserID(followingUserId)){
@@ -28,7 +28,7 @@ FollowRoute.post('/follow-user',async (req,res)=>{
     }
     //check wheather this user exists in my db.
 
-    try{
+    // try{
         const userDb=await User.verifyUserIdExists(followingUserId);
 
        if(!userDb){
@@ -47,14 +47,15 @@ FollowRoute.post('/follow-user',async (req,res)=>{
        })
 
 
-    }
-    catch(err){
-        return res.send({
-            status:400,
-            message:"Internal Error",
-            error:err
-        })
-    }
+    // }
+    // catch(err){
+    //     return res.send({
+    //         status:400,
+    //         message:"Internal Error",
+    //         error:err
+    //     })
+    // }
+
 
     //if the user is currently following the user
     //create the entry in db 
@@ -63,5 +64,111 @@ FollowRoute.post('/follow-user',async (req,res)=>{
 
 })
 
+FollowRouter.get('/following-list/:userId/:offset',async (req,res)=>{
+    const { userId,offset }=req.params;
+    if(!validateMongoDbUserID(userId)){
+        return res.send({
+            status:200,
+            message:"UserId Invalid"
+        })
 
-module.exports=FollowRoute;
+    }
+
+    try{
+        const userDb=await User.verifyUserIdExists(userId);
+
+       if(!userDb){
+        return res.send({
+            status:401,
+            message:'No User Found'
+        })
+       }
+                
+       const followingUserDetails=await followingUserList({followerUserId:userId,offset});
+
+       return res.send({
+        status:200,
+        message:"Read Suiccessfull",
+        data:followingUserDetails
+       })
+    }
+    catch(err){
+        return res.send({
+            status:401,
+            message:"Internal error",
+            error:err
+
+        })
+    }
+
+})
+
+FollowRouter.get('/follower-list/:userId/:offset',async (req,res)=>{
+    const { userId,offset }=req.params;
+    if(!validateMongoDbUserID(userId)){
+        return res.send({
+            status:200,
+            message:"UserId Invalid"
+        })
+
+    }
+
+    try{
+        const userDb=await User.verifyUserIdExists(userId);
+
+       if(!userDb){
+        return res.send({
+            status:401,
+            message:'No User Found'
+        })
+       }
+                
+       const followerUserDetails=await followerUserList({followingUserId:userId,offset});
+
+       return res.send({
+        status:200,
+        message:"Read Suiccessfull",
+        data:followerUserDetails
+       })
+    }
+    catch(err){
+        return res.send({
+            status:401,
+            message:"Internal error",
+            error:err
+
+        })
+    }
+
+})
+
+FollowRouter.post('/unfollow-user',async (req,res)=>{
+    const followerUserId=req.body.followerUserId ;//req.session.user.userId;
+    const followingUserId=req.body.userId;
+
+    
+
+    try{
+
+        const followDb=await unfollowUser({followerUserId,followingUserId});
+        return res.send({
+            status:200,
+            message:"unfollow successfully",
+            data:followDb
+        })
+
+
+
+    }
+    catch(err){
+        return res.send({
+            status:400,
+            message:"Operation Unsuccessful",
+            error:err
+        })
+    }
+
+})
+
+
+module.exports=FollowRouter;

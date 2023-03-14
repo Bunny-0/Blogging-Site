@@ -3,6 +3,7 @@ const express=require('express');
 const {cleanUpAndValidate,isAuth}=require('../Utils/Auth');
 
 const User=require('../Models/User');
+const UserSchema = require('../Schemas/User');
 
 const authRouter=express.Router();
 
@@ -17,8 +18,11 @@ authRouter.post('/login',async(req,res)=>{
     }
 
     try{
+        console.log("Hey");
         const dbUser= await User.loginUser({loginId,password});
+        console.log(dbUser);
         req.session.isAuth=true;
+        console.log("yes");
         req.session.user={
             email:dbUser.email,
             username:dbUser.username,

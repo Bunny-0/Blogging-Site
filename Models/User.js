@@ -1,6 +1,7 @@
-const UserSchema=require('../schemas/User');
-const bcrypt=require('bcrypt')
+const bcrypt=require('bcrypt');
+const ObjectId=require('mongodb').ObjectId;
 
+const UserSchema=require('../Schemas/User');
 class User{
 
     username;
@@ -21,8 +22,9 @@ class User{
 
         return new Promise(async (resolve,reject)=>{
 
-            try{
+            try{    
             const user=await UserSchema.findOne({$or:[{username},{email}]});
+
             
             if(user && user.email===email){
                 return reject('Email already exists');
@@ -42,10 +44,10 @@ class User{
 
     }
 
-    static verifyUserIdExists(UserId){
+    static verifyUserIdExists(userId){
         return new Promise(async(resolve,reject)=>{
             try{
-            const userDb= await UserSchema.findOne({_id:UserId});
+            const userDb= await UserSchema.findOne({_id:new ObjectId(userId)});
             resolve(userDb);
             }
             catch(err){
@@ -86,10 +88,10 @@ class User{
     }
 
     static loginUser({loginId,password}){
-
+        console.log(loginId+" "+password);
         return new Promise(async(resolve,reject)=>{
             let dbUser=await UserSchema.findOne({$or:[{email:loginId},{username:loginId}]});
-
+             console.log(dbUser);
             if(!dbUser){
                 return reject('no user is found');
             }
@@ -98,7 +100,6 @@ class User{
             if(!isMatch){
                 return reject('Invalid password');
             }
-
             resolve({
                 username:dbUser.username,
                 name:dbUser.name,
