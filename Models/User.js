@@ -88,10 +88,9 @@ class User{
     }
 
     static loginUser({loginId,password}){
-        console.log(loginId+" "+password);
         return new Promise(async(resolve,reject)=>{
             let dbUser=await UserSchema.findOne({$or:[{email:loginId},{username:loginId}]});
-             console.log(dbUser);
+            
             if(!dbUser){
                 return reject('no user is found');
             }
