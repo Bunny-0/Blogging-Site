@@ -6,11 +6,13 @@ const User=require('../Models/User');
 const {followUser,followingUserList,followerUserList,unfollowUser}=require('../Models/Follow');
 const constants = require('../constants');
 
+const {isAuth}=require('../Utils/Auth');
 
 
-FollowRouter.post('/follow-user',async (req,res)=>{
 
-    const followerUserId=req.body.followerUserId;//req.session.user.userId;
+FollowRouter.post('/follow-user',isAuth,async (req,res)=>{
+
+    const followerUserId=req.session.user.userId;
     const followingUserId=req.body.userId;
 
     //check IDs are valid
@@ -65,7 +67,7 @@ FollowRouter.post('/follow-user',async (req,res)=>{
 
 })
 
-FollowRouter.get('/following-list/:userId/:offset',async (req,res)=>{
+FollowRouter.get('/following-list/:userId/:offset',isAuth,async (req,res)=>{
     const { userId,offset }=req.params || 0;
     if(!validateMongoDbUserID(userId)){
         return res.send({
@@ -104,7 +106,7 @@ FollowRouter.get('/following-list/:userId/:offset',async (req,res)=>{
 
 })
 
-FollowRouter.get('/follower-list/:userId/:offset',async (req,res)=>{
+FollowRouter.get('/follower-list/:userId/:offset',isAuth,async (req,res)=>{
     const { userId,offset }=req.params || 0;
     if(!validateMongoDbUserID(userId)){
         return res.send({
@@ -143,8 +145,8 @@ FollowRouter.get('/follower-list/:userId/:offset',async (req,res)=>{
 
 })
 
-FollowRouter.post('/unfollow-user',async (req,res)=>{
-    const followerUserId=req.body.followerUserId ;//req.session.user.userId;
+FollowRouter.post('/unfollow-user',isAuth,async (req,res)=>{
+    const followerUserId=req.session.user.userId;
     const followingUserId=req.body.userId;
 
     

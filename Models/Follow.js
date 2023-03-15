@@ -51,7 +51,6 @@ function followingUserList({followerUserId,offset,limit}){
             followingUserIds.push( new ObjectId(item.followingUserId));
             
         })
-        console.log("recherd after loop");
 
         // await UserSchema.find({_id:{$in:followingUserIds}});
         const followingUserDetails=await UserSchema.aggregate([

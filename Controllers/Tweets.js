@@ -64,14 +64,13 @@ tweetsRouter.post('/create-tweet',isAuth,async (req,res)=>{
     }
 })
 
-tweetsRouter.get('/get-tweets',async (req,res)=>{
+tweetsRouter.get('/get-tweets',isAuth,async (req,res)=>{
 
     const offset=req.query.offset ||0;
     const userId=req.session.user.userId;
 
     try{
     const followingUserIds=await getFeedFollowingList(userId);
-   
     const dbTweets=await Tweets.getTweets(offset,followingUserIds);
 
     res.send({
@@ -94,14 +93,14 @@ catch(err) {
     
 });
 
-tweetsRouter.get('/get-my-tweets/:userId',isAuth,async (req,res)=>{
+tweetsRouter.get('/get-my-tweets',isAuth,async (req,res)=>{
 
     const offset=req.query.offset ||0;
-    const userId=req.params.userId;
-    //const userId=req.session.user.userId;
+    //const userId=req.query.userId//req.params.userId;
+    const userId=req.session.user.userId;
 
     try{
-    const dbTweets=await Tweets.getTweets(offset,userId);
+    const dbTweets=await Tweets.getMyTweets(offset,userId);
 
     res.send({
         status:200,
@@ -167,7 +166,13 @@ tweetsRouter.post('/edit-tweet/:userId',isAuth,async(req,res)=>{
         //check wheather this tweet actually belongs to the user
         const tweet=new Tweets({title,bodyText,tweetId});
         const tweetData=await tweet.getTweetDatafromTweetId();
-        console.log(userId+" "+tweetData.userId);
+
+        if(tweetData.isDeleted){
+            return res.send({
+                status:401,
+                message:"Cannot edit the deeleted tweet"
+            })
+        }
         if(userId.toString()!==tweetData.userId.toString()){
             return res.send({
                 status:400,
@@ -223,7 +228,7 @@ tweetsRouter.post('/delete-tweet',isAuth,async(req,res)=>{
         return res.send({
             status:500,
             message:"Parameter Missing."
-        })
+        }) 
     }
 
     try{
@@ -231,6 +236,19 @@ tweetsRouter.post('/delete-tweet',isAuth,async(req,res)=>{
         const tweet=new Tweets({tweetId,userId});
         
         const tweetData= await tweet.getTweetDatafromTweetId();
+        if(!tweetData){
+            return res.send({
+                status:401,
+                message:"Tweet not found"
+            })
+        }
+
+        if(tweetData.isDeleted){
+            return res.send({
+                status:401,
+                message:"Tweet is already deleted"
+            })
+        }
         if(userId.toString()!==tweetData.userId.toString()){
             return res.send({
                 status:400,

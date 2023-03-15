@@ -1,5 +1,6 @@
 const TweetsSchema=require('../Schemas/Tweets');
 const constants=require('../constants');
+const ObjectId=require('mongodb').ObjectId;
 
 
 class Tweets{
@@ -71,7 +72,9 @@ class Tweets{
 
             try{
 
-                const tweetData=await TweetsSchema.findOneAndDelete({_id:this.tweetId});
+               // const tweetData=await TweetsSchema.findOneAndDelete({_id:this.tweetId});
+               const tweetData=await TweetsSchema.findOneAndUpdate({_id:this.tweetId},{isDeleted:true},{deletionDatetime:new Date()});
+
                 resolve(tweetData);
 
             }
@@ -105,7 +108,7 @@ class Tweets{
 
                 const dbTweets=await TweetsSchema.aggregate([
                    //sort ,pagination  
-                   {$match :{userId:{$in:followingUserIds}}},
+                   {$match :{userId:{$in:followingUserIds},isDeleted:{$ne:true}}},
                    {$sort:{"creationDateTime":-1}},
                    {$facet:{
                     data:[
@@ -115,9 +118,6 @@ class Tweets{
                 }}
                 ])
 
-        
-
-                console.log(dbTweets);
                 resolve(dbTweets[0].data);
  
                 
@@ -140,7 +140,7 @@ class Tweets{
 
                 const dbTweets=await TweetsSchema.aggregate([
                    //sort ,pagination  ,check userid
-                   {$match:{userId:userId}},
+                   {$match:{userId:new ObjectId(userId),isDeleted:{$ne:true} }},
                    {$sort:{"creationDateTime":-1}},
                    {$facet:{
                     data:[
