@@ -33,7 +33,7 @@ function followUser({followerUserId,followingUserId}){
     })
 }
 
-function followingUserList({followerUserId,offset}){
+function followingUserList({followerUserId,offset,limit}){
     return new Promise(async (resolve,reject)=>{
 
     try{
@@ -43,7 +43,7 @@ function followingUserList({followerUserId,offset}){
             {$match:{followerUserId: new ObjectId(followerUserId) }},
             {$sort:{creationDatetime:-1}},
             {$project:{followingUserId:1 }},
-            {$facet:{data:[{"$skip": parseInt(offset)},{"$limit":constants.FOLLOWLIMIT}]
+            {$facet:{data:[{"$skip": parseInt(offset)},{"$limit":limit}]
             }}
         ])
         const followingUserIds=[];
@@ -78,7 +78,37 @@ function followingUserList({followerUserId,offset}){
 
 })
 }
-function followerUserList({followingUserId,offset}){
+function followingUserIdsList({followerUserId,offset,limit}){
+    return new Promise(async (resolve,reject)=>{
+
+    try{
+
+        const followDb=await FollowSchema.aggregate([
+            
+            {$match:{followerUserId: new ObjectId(followerUserId) }},
+            {$sort:{creationDatetime:-1}},
+            {$project:{followingUserId:1 }},
+            {$facet:{data:[{"$skip": parseInt(offset)},{"$limit":limit}]
+            }}
+        ])
+        const followingUserIds=[];
+        followDb[0].data.forEach((item) => {
+            followingUserIds.push( new ObjectId(item.followingUserId));
+            
+        })
+      
+        resolve(followingUserIds);
+
+    }
+    catch(err){
+
+        reject(err);
+
+    }
+
+})
+}
+function followerUserList({followingUserId,offset,limit}){
     return new Promise(async (resolve,reject)=>{
 
     try{
@@ -88,7 +118,7 @@ function followerUserList({followingUserId,offset}){
             {$sort:{creationDatetime:-1}},
             {$project:{followerUserId:1 }},
             {$facet:{
-                data:[{"$skip":parseInt(offset)},{"$limit":constants.FOLLOWLIMIT}]
+                data:[{"$skip":parseInt(offset)},{"$limit":limit}]
             }}
         ])
         const followerUserIds=[];
@@ -141,4 +171,4 @@ function unfollowUser({followingUserId,followerUserId}){
     })
 
 }
-module.exports={followUser,followingUserList,followerUserList,unfollowUser};
+module.exports={followUser,followingUserList,followerUserList,unfollowUser,followingUserIdsList};
